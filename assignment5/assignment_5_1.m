@@ -1,5 +1,3 @@
-source('map_feature.m');
-
 function out = regular_matrix(x, lambda);
   out = eye(length(x(1,:)));
   out(1,1) = 0;
@@ -10,20 +8,24 @@ function out = normal_solution(x, y, lambda)
   out = inv(x' * x + regular_matrix(x, lambda)) * x' * y;
 end
 
-function plot_normal_soln(x, y, n, lambda, fmt='-')
-  theta = normal_solution(x, y, lambda);
-  printf('lambda: %i\n', lambda)
+function print_theta(theta, n)
   printf('theta: [\n');
   for i=1:(n+1)
     printf('\t%f\n', theta(i));
   end
   printf(']\n');
+end
+
+function plot_normal_soln(x, y, n, lambda, fmt='-')
+  theta = normal_solution(x, y, lambda);
+  printf('lambda: %i\n', lambda);
+  print_theta(theta, n);
   fn_plot = @(v) theta(1) + theta(2)*v + theta(3)*(v.^2) + ...
                  theta(4)*(v.^3) + theta(5)*(v.^4) + theta(6)*(v.^5);
   fplot(fn_plot, [0,1], fmt);
 end
 
-function main_run()
+function part_1()
   y = load('ex5Liny.dat');
   m = length(y);
   x = [load('ex5Linx.dat')];

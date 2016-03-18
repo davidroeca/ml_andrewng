@@ -29,7 +29,7 @@ function out = newton_step(theta, x, y, lambda, m)
   out = theta - inv(hessian(theta, x, lambda, m)) * gradj(theta, x, y, lambda, m);
 end
 
-function out = newtons_method(theta, x, y, lambda, m, iter_max=10)
+function out = newtons_method(theta, x, y, lambda, m, iter_max=15)
   out = theta;
   for i=1:iter_max
     out = newton_step(out, x, y, lambda, m);

@@ -19,9 +19,10 @@ function out = gradj(theta, x, y, lambda, m)
 end
 
 function out = hessian(theta, x, lambda, m)
+  h = g(x * theta);
   reg_term = (lambda / m) .* eye(length(x(1,:)));
   reg_term(1,1) = 0;
-  out = (1 / m) * (g(x * theta)' * (1 - g(x * theta)) .* x' * x) + reg_term;
+  out = (1 / m) .* x' * diag(h) * diag(1 - h) * x + reg_term;
 end
 
 function out = newton_step(theta, x, y, lambda, m)
@@ -32,28 +33,44 @@ function out = newtons_method(theta, x, y, lambda, m, iter_max=10)
   out = theta;
   for i=1:iter_max
     out = newton_step(out, x, y, lambda, m);
-    printf('\tcost: %f\n', cost_function(out, x, y, lambda, m));
   end
 end
 
-y = load('ex5Logy.dat');
-m = length(y)
-x = load('ex5Logx.dat');
-
-figure;
-
-pos = find(y);
-neg = find(y == 0);
-
-plot(x(pos, 1), x(pos, 2), '+');
-hold on;
-plot(x(neg, 1), x(neg, 2), 'o');
-
-x = map_feature(x(:,1), x(:,2))
-n = length(x(1, :));
-for lambda=[0,1,10]
-  theta = zeros(n,1);
+function newtons_method_plot_print(theta, x, y, lambda, m, plot_fmt)
   printf('lambda: %f ------------------------------------\n', lambda);
-  theta = newtons_method(theta, x, y, lambda, m, iter_max=20);
+  theta = newtons_method(theta, x, y, lambda, m);
   printf('norm theta: %f\n', norm(theta));
+  u = linspace(-1, 1.5, 200);
+  v = linspace(-1, 1.5, 200);
+  z = zeros(length(u), length(v));
+  for i = 1:length(u)
+    for j = 1:length(v)
+      z(j, i) = map_feature(u(i), v(j)) * theta;
+    end
+  end
+  z = z';
+  contour(u, v, z, [0, 0], 'LineWidth', 2, plot_fmt);
+end
+
+function part_2(script=false)
+  y = load('ex5Logy.dat');
+  m = length(y);
+  x = load('ex5Logx.dat');
+
+  pos = find(y);
+  neg = find(y == 0);
+
+  if (!script)
+    figure;
+    plot(x(pos, 1), x(pos, 2), '+');
+    hold on;
+    plot(x(neg, 1), x(neg, 2), 'o');
+
+    x = map_feature(x(:,1), x(:,2));
+    n = length(x(1, :));
+    theta = zeros(n,1);
+    newtons_method_plot_print(theta, x, y, 0, m, '-r')
+    newtons_method_plot_print(theta, x, y, 1, m, '-g')
+    newtons_method_plot_print(theta, x, y, 10, m, '-b')
+  end
 end
